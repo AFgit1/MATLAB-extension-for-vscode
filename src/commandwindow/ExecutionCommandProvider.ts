@@ -3,7 +3,6 @@
 import * as vscode from 'vscode'
 import { MVM } from './MVM'
 import TerminalService from './TerminalService'
-import TelemetryLogger from '../telemetry/TelemetryLogger'
 import * as path from 'path'
 import { SectionModel } from '../model/SectionModel'
 import { Capability } from './MVMInterface'
@@ -35,12 +34,10 @@ enum FILE_PATH_STATE {
 export default class ExecutionCommandProvider {
     private readonly _mvm: MVM;
     private readonly _terminalService: TerminalService;
-    private readonly _telemetryLogger: TelemetryLogger;
 
-    constructor (mvm: MVM, terminalService: TerminalService, telemetryLogger: TelemetryLogger) {
+    constructor (mvm: MVM, terminalService: TerminalService) {
         this._mvm = mvm;
         this._terminalService = terminalService;
-        this._telemetryLogger = telemetryLogger;
     }
 
     /**
@@ -50,13 +47,7 @@ export default class ExecutionCommandProvider {
     async handleRunFile (): Promise<void> {
         const editor = vscode.window.activeTextEditor
 
-        this._telemetryLogger.logEvent({
-            eventKey: 'ML_VS_CODE_ACTIONS',
-            data: {
-                action_type: 'runFile',
-                result: ''
-            }
-        });
+
 
         // Early return if the editor isn't valid or isn't MATLAB
         if (editor === undefined || editor.document.languageId !== 'matlab') {
@@ -239,13 +230,7 @@ export default class ExecutionCommandProvider {
     }
 
     async handleRunSection (sectionModel: SectionModel): Promise<void> {
-        this._telemetryLogger.logEvent({
-            eventKey: 'ML_VS_CODE_ACTIONS',
-            data: {
-                action_type: 'runSection',
-                result: ''
-            }
-        });
+
 
         const editor = vscode.window.activeTextEditor
         if (editor === undefined || editor.document.languageId !== 'matlab') {
@@ -335,13 +320,7 @@ export default class ExecutionCommandProvider {
      * @returns
      */
     async handleRunSelection (): Promise<void> {
-        this._telemetryLogger.logEvent({
-            eventKey: 'ML_VS_CODE_ACTIONS',
-            data: {
-                action_type: 'runSelection',
-                result: ''
-            }
-        });
+
 
         const editor = vscode.window.activeTextEditor
         if (editor === undefined || editor.document.languageId !== 'matlab') {
@@ -364,13 +343,7 @@ export default class ExecutionCommandProvider {
      * Implements the interrupt action
      */
     handleInterrupt (): void {
-        this._telemetryLogger.logEvent({
-            eventKey: 'ML_VS_CODE_ACTIONS',
-            data: {
-                action_type: 'interrupt',
-                result: ''
-            }
-        });
+
         this._mvm.interrupt();
     }
 
@@ -380,13 +353,7 @@ export default class ExecutionCommandProvider {
      * @returns
      */
     async handleAddFolderToPath (uri: vscode.Uri): Promise<void> {
-        this._telemetryLogger.logEvent({
-            eventKey: 'ML_VS_CODE_ACTIONS',
-            data: {
-                action_type: 'addToPath',
-                result: ''
-            }
-        });
+
 
         await this._terminalService.openTerminalOrBringToFront();
 
@@ -400,13 +367,7 @@ export default class ExecutionCommandProvider {
     }
 
     async handleAddFolderAndSubfoldersToPath (uri: vscode.Uri): Promise<void> {
-        this._telemetryLogger.logEvent({
-            eventKey: 'ML_VS_CODE_ACTIONS',
-            data: {
-                action_type: 'addFolderAndSubfoldersToPath',
-                result: ''
-            }
-        });
+
 
         await this._terminalService.openTerminalOrBringToFront();
 
@@ -429,13 +390,7 @@ export default class ExecutionCommandProvider {
      * @returns
      */
     async handleChangeDirectory (uri: vscode.Uri): Promise<void> {
-        this._telemetryLogger.logEvent({
-            eventKey: 'ML_VS_CODE_ACTIONS',
-            data: {
-                action_type: 'changeDirectory',
-                result: ''
-            }
-        });
+
 
         await this._terminalService.openTerminalOrBringToFront();
 
@@ -454,13 +409,7 @@ export default class ExecutionCommandProvider {
      * @returns
      */
     async handleOpenFile (uri: vscode.Uri): Promise<void> {
-        this._telemetryLogger.logEvent({
-            eventKey: 'ML_VS_CODE_ACTIONS',
-            data: {
-                action_type: 'openFile',
-                result: ''
-            }
-        });
+
 
         await this._terminalService.openTerminalOrBringToFront();
 

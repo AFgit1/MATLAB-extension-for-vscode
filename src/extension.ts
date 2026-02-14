@@ -6,7 +6,6 @@ import {
     LanguageClient, LanguageClientOptions, ServerOptions, TransportKind
 } from 'vscode-languageclient/node'
 import NotificationConstants from './NotificationConstants'
-import TelemetryLogger, { TelemetryEvent } from './telemetry/TelemetryLogger'
 import { MVM } from './commandwindow/MVM'
 import { Notifier, MultiClientNotifier } from './commandwindow/Utilities'
 import TerminalService from './commandwindow/TerminalService'
@@ -34,7 +33,7 @@ export let connectionStatusNotification: vscode.StatusBarItem
 // Command to enable or disable Sign In options for MATLAB
 const MATLAB_ENABLE_SIGN_IN_COMMAND = 'matlab.enableSignIn'
 
-let telemetryLogger: TelemetryLogger
+
 
 let deprecationPopupService: DeprecationPopupService
 
@@ -50,17 +49,7 @@ let terminalService: TerminalService;
 let executionCommandProvider: ExecutionCommandProvider;
 
 export async function activate (context: vscode.ExtensionContext): Promise<void> {
-    // Initialize telemetry logger
-    telemetryLogger = new TelemetryLogger(context.extension.packageJSON.version)
-    telemetryLogger.logEvent({
-        eventKey: 'ML_VS_CODE_ENVIRONMENT',
-        data: {
-            machine_hash: vscode.env.machineId,
-            locale: vscode.env.language,
-            os_platform: process.platform,
-            vs_code_version: vscode.version
-        }
-    })
+
 
     // Set up status bar indicator
     connectionStatusNotification = vscode.window.createStatusBarItem()
@@ -126,13 +115,12 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
     client.onNotification(Notification.MatlabLaunchFailed, () => handleMatlabLaunchFailed())
     client.onNotification(Notification.MatlabFeatureUnavailable, () => handleFeatureUnavailable())
     client.onNotification(Notification.MatlabFeatureUnavailableNoMatlab, () => handleFeatureUnavailableWithNoMatlab())
-    client.onNotification(Notification.LogTelemetryData, (data: TelemetryEvent) => handleTelemetryReceived(data))
 
     const multiclientNotifier = new MultiClientNotifier(client as Notifier);
     mvm = new MVM(multiclientNotifier);
     terminalService = new TerminalService(multiclientNotifier, mvm);
-    executionCommandProvider = new ExecutionCommandProvider(mvm, terminalService, telemetryLogger);
-    matlabDebugger = new MatlabDebugger(mvm, multiclientNotifier, telemetryLogger);
+    executionCommandProvider = new ExecutionCommandProvider(mvm, terminalService);
+    matlabDebugger = new MatlabDebugger(mvm, multiclientNotifier);
 
     // Register a custom command which allows the user enable / disable Sign In options.
     // Using this custom command would be an alternative approach to going to enabling the setting.
@@ -283,13 +271,7 @@ function handleConnectionStatusChange (data: { connectionStatus: string }): void
             ).then(choice => {
                 if (choice != null) {
                     // Selected to restart MATLAB
-                    telemetryLogger.logEvent({
-                        eventKey: 'ML_VS_CODE_ACTIONS',
-                        data: {
-                            action_type: 'restartMATLAB',
-                            result: ''
-                        }
-                    })
+
                     sendConnectionActionNotification('connect')
                 }
             }, reject => console.error(reject))
@@ -394,10 +376,7 @@ function handleFeatureUnavailableWithNoMatlab (): void {
     }
 }
 
-function handleTelemetryReceived (event: TelemetryEvent): void {
-    event.eventKey = `ML_VS_CODE_${event.eventKey}`
-    telemetryLogger.logEvent(event)
-}
+
 
 /**
  * Gets the arguments with which to launch the language server

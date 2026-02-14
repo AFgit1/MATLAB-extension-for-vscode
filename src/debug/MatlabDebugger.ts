@@ -5,14 +5,12 @@ import { Notifier } from '../commandwindow/Utilities';
 import { MVM, MatlabState } from '../commandwindow/MVM'
 import MatlabDebugAdaptor from './MatlabDebugAdaptor';
 import Notification from '../Notifications';
-import TelemetryLogger from '../telemetry/TelemetryLogger';
 
 export default class MatlabDebugger {
     private readonly _baseDebugAdaptor: MatlabDebugAdaptor;
     private readonly _nestedDebugAdaptor: MatlabDebugAdaptor;
     private readonly _mvm: MVM;
     private readonly _notifier: Notifier;
-    private readonly _telemetryLogger: TelemetryLogger;
 
     private _isDebugAdaptorStarted: boolean = false;
 
@@ -21,10 +19,10 @@ export default class MatlabDebugger {
 
     private _hasSentNotification: boolean = false;
 
-    constructor (mvm: MVM, notifier: Notifier, telemetryLogger: TelemetryLogger) {
+    constructor (mvm: MVM, notifier: Notifier) {
         this._mvm = mvm;
         this._notifier = notifier;
-        this._telemetryLogger = telemetryLogger;
+
         this._baseDebugAdaptor = new MatlabDebugAdaptor(mvm, notifier, this._getBaseDebugSession.bind(this), true)
         this._nestedDebugAdaptor = new MatlabDebugAdaptor(mvm, notifier, this._getBaseDebugSession.bind(this), false)
         this._initialize();
@@ -208,13 +206,7 @@ export default class MatlabDebugger {
 
         if (!this._hasSentNotification) {
             this._hasSentNotification = true;
-            this._telemetryLogger.logEvent({
-                eventKey: 'ML_VS_CODE_ACTIONS',
-                data: {
-                    action_type: 'debuggerStarted',
-                    result: ''
-                }
-            });
+
         }
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

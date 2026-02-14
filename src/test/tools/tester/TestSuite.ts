@@ -27,7 +27,7 @@ export class TestSuite {
         const settingsjson = path.join(__dirname, '..', 'config', 'settings.json')
         const settings = JSON.stringify({
             'MATLAB.installPath': MATLAB_PATH,
-            'MATLAB.telemetry': false,
+            
             'MATLAB.startDebuggerAutomatically': true,
             'window.dialogStyle': 'custom',
             'terminal.integrated.copyOnSelection': true,

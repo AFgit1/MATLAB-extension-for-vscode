@@ -22,6 +22,6 @@
 		".vscode-test"
 	],
     "references": [
-        { "path": "./server/tsconfig.json" }
+        {  }
     ]
 }
